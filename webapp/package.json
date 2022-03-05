@@ -9,10 +9,13 @@
   "license": "OSL-3.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "check": "tsc --noEmit",
+    "dev": "next dev",
+    "lint": "next lint",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "start": "next start"
   },
   "dependencies": {
     "next": "^12.1.0",
@@ -30,6 +33,8 @@
     "@typescript-eslint/parser": "^5.13.0",
     "eslint": "^8.10.0",
     "eslint-config-next": "^12.1.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "2.5.1",
     "typescript": "^4.6.2"
   }
 }

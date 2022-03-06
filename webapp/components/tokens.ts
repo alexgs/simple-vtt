@@ -28,6 +28,7 @@ const colorBase = {
   accent: 'rgb(197 39 255)',
   background: colorOptions.background.charcoal,
   chill: 'rgb(125 255 255)',
+  grey: colorOptions.background.grey,
   pop: 'rgb(255 96 213)',
   primary: colorOptions.primary.silver,
 };

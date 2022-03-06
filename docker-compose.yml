@@ -80,28 +80,11 @@ services:
     working_dir: /simple-vtt/webapp
     networks:
       - app-network
-#    environment:
-#      - AUTH_CLIENT_ID
-#      - AUTH_CLIENT_SECRET
-#      - AUTH_DEFAULT_PASSWORD
-#      - AUTH_ORIGIN_EXTERNAL
-#      - AUTH_ORIGIN_INTERNAL
-#      - AUTH_PATH_DISCOVERY
-#      - COOKIE_ACCESS_TOKEN_TTL
-#      - COOKIE_REFRESH_TOKEN_TTL
-#      - COOKIE_VERIFY_TTL
-#      - DATABASE_URL
-#      - IRON_CURRENT_PWD
-#      - IRON_PASSWORDS
-#      - IRON_SEAL_TTL
-#      - NEXT_PUBLIC_HASURA_SECRET
-#      - WEBAPP_AUTH_API_KEY
-#      - WEBAPP_BASE_URL
-#      - WEBAPP_CDN_APP_ID
-#      - WEBAPP_CORE_APP_ID
-#      - WEBAPP_LOG_LEVEL
-#      - WEBAPP_LOG_PATH
-#      - WEBAPP_PORT
+    environment:
+      - DATABASE_URL
+      - HASURA_GRAPHQL_ADMIN_SECRET
+      - HASURA_GRAPHQL_CONSOLE_PORT
+      - TRAEFIK_DASHBOARD_PORT
     command: /home/node/.volta/bin/npm run dev
     depends_on:
       - database

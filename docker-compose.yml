@@ -11,15 +11,32 @@ services:
       - "${DATABASE_HOST_DIRECTORY}:/var/lib/postgresql/data"
       - ./host/database:/host
     working_dir: /host
-#    labels:
-#      - "traefik.enable=false"
+    labels:
+      - "traefik.enable=false"
+
+  traefik:
+    image: traefik:2.6
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "${TRAEFIK_DASHBOARD_PORT}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Share the Docker socket (insecure)
+      - ./traefik:/etc/traefik
+      - ./host/traefik:/host
+    networks:
+      - app-network
+    depends_on:
+      - webapp
+    labels:
+      - "traefik.enable=false"
 
   webapp:
     image: alexgs99/node:2
     container_name: webapp
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     volumes:
       - .:/simple-vtt
     working_dir: /simple-vtt/webapp
@@ -50,10 +67,10 @@ services:
     command: /home/node/.volta/bin/npm run dev
     depends_on:
       - database
-#    labels:
-#      - "traefik.http.routers.webapp.rule=PathPrefix(`/`)"
-#      - "traefik.http.routers.webapp.tls=true"
-#      - "traefik.http.services.webapp.loadbalancer.server.port=${WEBAPP_PORT}"
+    labels:
+      - "traefik.http.routers.webapp.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.webapp.tls=true"
+      - "traefik.http.services.webapp.loadBalancer.server.port=3000"
 
 networks:
   app-network:

@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /etc/traefik/localhost-owlbear-tech.crt
+      keyFile: /etc/traefik/localhost-owlbear-tech.key

@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS public.accounts
     refresh_token       TEXT,
     access_token        TEXT,
     expires_at          INTEGER,
+    token_type          TEXT,
     scope               TEXT,
     id_token            TEXT,
     session_state       TEXT,

@@ -7,63 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model accounts {
-  id                  String   @id(map: "accounts_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id             String   @db.Uuid
-  type                String
-  provider            String
-  provider_account_id String
-  refresh_token       String?
-  access_token        String?
-  expires_at          Int?
-  scope               String?
-  id_token            String?
-  session_state       String?
-  created_at          DateTime @default(now())
-  updated_at          DateTime @default(now())
-  users               users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "accounts_users_id_fk")
+model Account {
+  id                String   @id(map: "accounts_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "accounts_users_id_fk")
 
-  @@unique([provider, provider_account_id])
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model flyway_schema_history {
-  installed_rank Int      @id(map: "flyway_schema_history_pk")
-  version        String?  @db.VarChar(50)
-  description    String   @db.VarChar(200)
-  type           String   @db.VarChar(20)
-  script         String   @db.VarChar(1000)
-  checksum       Int?
-  installed_by   String   @db.VarChar(100)
-  installed_on   DateTime @default(now()) @db.Timestamp(6)
-  execution_time Int
-  success        Boolean
-
-  @@index([success], map: "flyway_schema_history_s_idx")
+  @@ignore()
 }
 
-model sessions {
-  id            String   @id(map: "sessions_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id       String   @db.Uuid
-  session_token String   @unique
-  expires       DateTime
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now())
-  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "sessions_users_id_fk")
+model Session {
+  id           String   @id(map: "sessions_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  expires      DateTime
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "sessions_users_id_fk")
+
+  @@map("sessions")
 }
 
-model users {
-  id             String     @id(map: "users_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name           String?
-  email          String?    @unique
-  email_verified DateTime?
-  image          String?
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @default(now())
-  accounts       accounts[]
-  sessions       sessions[]
+model User {
+  id            String    @id(map: "users_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now())
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
 }
 
-model verification_tokens {
+model VerificationToken {
   identifier String
   token      String   @unique(map: "verification_token_key")
   expires    DateTime
@@ -71,4 +66,5 @@ model verification_tokens {
   updated_at DateTime @default(now())
 
   @@unique([identifier, token], map: "verification_identifier_token_key")
+  @@map("verification_tokens")
 }

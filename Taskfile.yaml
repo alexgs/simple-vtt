@@ -2,6 +2,10 @@
 
 version: '3'
 
+includes:
+  db: ./taskfiles/database.yml
+  web: ./taskfiles/webapp.yml
+
 dotenv: ['.env']
 
 vars:

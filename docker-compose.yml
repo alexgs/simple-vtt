@@ -1,4 +1,19 @@
 services:
+  database:
+    image: postgres:13-alpine
+    container_name: database
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - "${DATABASE_HOST_DIRECTORY}:/var/lib/postgresql/data"
+      - ./host/database:/host
+    working_dir: /host
+#    labels:
+#      - "traefik.enable=false"
+
   webapp:
     image: alexgs99/node:2
     container_name: webapp
@@ -33,8 +48,8 @@ services:
 #      - WEBAPP_LOG_PATH
 #      - WEBAPP_PORT
     command: /home/node/.volta/bin/npm run dev
-#    depends_on:
-#      - database
+    depends_on:
+      - database
 #    labels:
 #      - "traefik.http.routers.webapp.rule=PathPrefix(`/`)"
 #      - "traefik.http.routers.webapp.tls=true"

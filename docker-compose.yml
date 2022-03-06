@@ -32,7 +32,7 @@ services:
 #      - WEBAPP_LOG_LEVEL
 #      - WEBAPP_LOG_PATH
 #      - WEBAPP_PORT
-    command: npm run dev
+    command: /home/node/.volta/bin/npm run dev
 #    depends_on:
 #      - database
 #    labels:

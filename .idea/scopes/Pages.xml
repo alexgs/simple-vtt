@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Pages" pattern="file[simple-vtt]:webapp/pages//*" />
+</component>

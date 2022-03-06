@@ -1,0 +1,116 @@
+services:
+  database:
+    image: postgres:13-alpine
+    container_name: database
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - "${DATABASE_HOST_DIRECTORY}:/var/lib/postgresql/data"
+      - ./host/database:/host
+    working_dir: /host
+    labels:
+      - "traefik.enable=false"
+
+  flyway:
+    image: alexgs99/flyway:1
+    container_name: flyway
+    restart: "no"
+    networks:
+      - app-network
+    volumes:
+      - ./flyway/conf:/flyway/conf
+      - ./flyway/sql:/flyway/sql
+    environment:
+      - FLYWAY_PASSWORD=${DATABASE_PASSWORD}
+      - FLYWAY_URL=jdbc:postgresql://database:5432/${DATABASE_NAME}
+      - FLYWAY_USER=${DATABASE_USER}
+    depends_on:
+      - database
+    labels:
+      - "traefik.enable=false"
+
+  hasura:
+    image: hasura/graphql-engine:v2.3.0
+    container_name: hasura
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "${HASURA_GRAPHQL_CONSOLE_PORT}:8080"
+    depends_on:
+      - database
+    environment:
+      - HASURA_GRAPHQL_ADMIN_SECRET
+      - HASURA_GRAPHQL_DATABASE_URL
+      - HASURA_GRAPHQL_DEV_MODE=true
+      - HASURA_GRAPHQL_ENABLED_LOG_TYPES=startup, http-log, webhook-log, websocket-log, query-log
+      - HASURA_GRAPHQL_ENABLE_CONSOLE=true
+      - HASURA_GRAPHQL_METADATA_DATABASE_URL=${HASURA_GRAPHQL_DATABASE_URL}
+    labels:
+      - "traefik.enable=false"
+
+  traefik:
+    image: traefik:2.6
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "${TRAEFIK_DASHBOARD_PORT}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Share the Docker socket (insecure)
+      - ./traefik:/etc/traefik
+      - ./host/traefik:/host
+    networks:
+      - app-network
+    depends_on:
+      - webapp
+    labels:
+      - "traefik.enable=false"
+
+  webapp:
+    image: alexgs99/node:2
+    container_name: webapp
+    restart: unless-stopped
+    volumes:
+      - .:/simple-vtt
+    working_dir: /simple-vtt/webapp
+    networks:
+      - app-network
+#    environment:
+#      - AUTH_CLIENT_ID
+#      - AUTH_CLIENT_SECRET
+#      - AUTH_DEFAULT_PASSWORD
+#      - AUTH_ORIGIN_EXTERNAL
+#      - AUTH_ORIGIN_INTERNAL
+#      - AUTH_PATH_DISCOVERY
+#      - COOKIE_ACCESS_TOKEN_TTL
+#      - COOKIE_REFRESH_TOKEN_TTL
+#      - COOKIE_VERIFY_TTL
+#      - DATABASE_URL
+#      - IRON_CURRENT_PWD
+#      - IRON_PASSWORDS
+#      - IRON_SEAL_TTL
+#      - NEXT_PUBLIC_HASURA_SECRET
+#      - WEBAPP_AUTH_API_KEY
+#      - WEBAPP_BASE_URL
+#      - WEBAPP_CDN_APP_ID
+#      - WEBAPP_CORE_APP_ID
+#      - WEBAPP_LOG_LEVEL
+#      - WEBAPP_LOG_PATH
+#      - WEBAPP_PORT
+    command: /home/node/.volta/bin/npm run dev
+    depends_on:
+      - database
+    labels:
+      - "traefik.http.routers.webapp.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.webapp.tls=true"
+      - "traefik.http.services.webapp.loadBalancer.server.port=3000"
+
+networks:
+  app-network:
+    driver: bridge
+    name: app-network

@@ -1,33 +1,26 @@
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaClient } from '@prisma/client';
+import * as env from 'env-var';
 import NextAuth from 'next-auth';
+import EmailProvider from 'next-auth/providers/email';
+
+const emailSender = env.get('EMAIL_SENDER').required().asString();
+const emailUrl = env.get('EMAIL_URL').required().asString();
+const prisma = new PrismaClient();
 
 export default NextAuth({
-  providers: [],
-  // Database optional. MySQL, Maria DB, Postgres and MongoDB are supported.
-  // https://next-auth.js.org/configuration/databases
-  //
-  // Notes:
-  // * You must install an appropriate node_module for your database
-  // * The Email provider requires a database (OAuth providers do not)
-  // database: process.env.DATABASE_URL, // TODO
-
-  // The secret should be set to a reasonably long random string.
-  // It is used to sign cookies and to sign and encrypt JSON Web Tokens, unless
-  // a separate secret is defined explicitly for encrypting the JWT.
-  secret: process.env.SECRET,
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    EmailProvider({
+      from: emailSender,
+      server: emailUrl,
+    }),
+  ],
   session: {
-    strategy: 'jwt',
-
-    // Seconds - How long until an idle session expires and is no longer valid.
-    // maxAge: 30 * 24 * 60 * 60, // 30 days
-
-    // Seconds - Throttle how frequently to write to database to extend a session.
-    // Use it to limit write operations. Set to 0 to always update the database.
-    // Note: This option is ignored if using JSON Web Tokens
-    // updateAge: 24 * 60 * 60, // 24 hours
-  },
-  jwt: {
-    // A secret to use for key generation (you should set this explicitly)
-    secret: process.env.SECRET,
+    // How long until an idle session expires and is no longer valid (seconds)
+    maxAge: 24 * 60 * 60, // 24 hours in seconds
+    // Throttle how frequently to write to database to extend a session (seconds)
+    updateAge: 60 * 60, // 1 hour in seconds
   },
   pages: {},
   callbacks: {},

@@ -1,5 +1,7 @@
-import React from 'react';
 import styled from '@emotion/styled';
+import Head from 'next/head';
+import React from 'react';
+
 import { color } from '../components/tokens';
 
 const Accent = styled.span({
@@ -17,6 +19,9 @@ const Pop = styled.span({
 const HomePage: React.FC = () => {
   return (
     <>
+      <Head>
+        <title>Simple VTT</title>
+      </Head>
       <div>Welcome to Next.js!</div>
       <div>
         This is an <Accent>example of the accent</Accent> color.
